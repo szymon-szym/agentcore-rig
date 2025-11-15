@@ -5,8 +5,8 @@ on:
     branches: ["main"]
 
 env:
-  AWS_REGION: us-east-1
-  ECR_REPO: ac-repository
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  ECR_REPO: ${{ vars.ECR_REPO }}
   ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
 
 jobs:
