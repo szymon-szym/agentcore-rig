@@ -1,0 +1,52 @@
+name: Build & Push agent to ECR
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPO: ac-repository
+  ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+
+jobs:
+  build-arm:
+    runs-on: ubuntu-24.04-arm64
+
+    defaults:
+      run:
+        working-directory: agent
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Docker login to ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+            | docker login \
+              --username AWS \
+              --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Build ARM64 Docker image (native)
+        run: |
+          docker build \
+            -t $ECR_REPO:latest \
+            .
+
+      - name: Tag image
+        run: |
+          docker tag $ECR_REPO:latest \
+            $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+
+      - name: Push to ECR
+        run: |
+          docker push \
+            $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
