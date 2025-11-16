@@ -48,9 +48,10 @@ async fn main() {
 
     let sts_client = aws_sdk_sts::Client::new(&aws_config);
 
-    let resp = sts_client.get_caller_identity().send().await.unwrap();
-
-    println!("identity {:?}", resp);
+    match sts_client.get_caller_identity().send().await {
+        Ok(resp) => println!("identity: {:?}", resp),
+        Err(e) => eprintln!("sts get_caller_identity error: {:?}", e),
+    }
 
     let client = Client::from(bedrock_runtime_client);
 
