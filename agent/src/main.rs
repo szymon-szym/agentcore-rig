@@ -40,7 +40,13 @@ pub struct AppState {
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    let client = Client::from_env();
+    let aws_config = aws_config::from_env().region("us-east-1").load().await;
+
+    println!("config loaded: {:?}", aws_config);
+
+    let bedrock_runtime_client = aws_sdk_bedrockruntime::Client::new(&aws_config);
+
+    let client = Client::from(bedrock_runtime_client);
 
     let state = AppState {
         rig_client: client.clone(),
@@ -75,7 +81,11 @@ async fn invocations(
         .preamble("You are helpful assistant. Respond only with the answer. Be concise.")
         .build();
 
+    println!("profile: {:?}", state.rig_client);
+
     let response = agent.prompt(prompt).await.unwrap();
+
+    println!("profile after call: {:?}", state.rig_client);
 
     let response = InvocationsResponse { message: response };
     Json(response)
