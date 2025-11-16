@@ -10,6 +10,8 @@ RUN cargo build --release --target aarch64-unknown-linux-gnu
 
 FROM debian:bookworm-slim AS runtime
 
+RUN apt-get update && apt-get install -y --no-install-recommends libssl3 && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/agent .

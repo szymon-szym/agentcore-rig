@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-aws-config = "1.8.10"
 axum = { version = "0.8.7", features = ["macros"] }
 rig-bedrock = "0.3.6"
 rig-core = "0.24.0"

@@ -11,7 +11,6 @@ use rig_bedrock::{
 
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
-use tracing::info;
 
 #[derive(Serialize)]
 pub struct StatusResponse {
