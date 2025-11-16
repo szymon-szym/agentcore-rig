@@ -40,26 +40,17 @@ pub struct AppState {
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    println!(
-        "AWS_CONTAINER_CREDENTIALS_RELATIVE_URI={:?}",
-        std::env::var("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI")
-    );
-    println!(
-        "AWS_CONTAINER_CREDENTIALS_FULL_URI={:?}",
-        std::env::var("AWS_CONTAINER_CREDENTIALS_FULL_URI")
-    );
-    println!(
-        "AWS_WEB_IDENTITY_TOKEN_FILE={:?}",
-        std::env::var("AWS_WEB_IDENTITY_TOKEN_FILE")
-    );
-    println!("AWS_ROLE_ARN={:?}", std::env::var("AWS_ROLE_ARN"));
-    println!("AWS_ACCESS_KEY_ID={:?}", std::env::var("AWS_ACCESS_KEY_ID"));
-
     let aws_config = aws_config::from_env().region("us-east-1").load().await;
 
     println!("config loaded: {:?}", aws_config);
 
     let bedrock_runtime_client = aws_sdk_bedrockruntime::Client::new(&aws_config);
+
+    let sts_client = aws_sdk_sts::Client::new(&aws_config);
+
+    let resp = sts_client.get_caller_identity().send().await.unwrap();
+
+    println!("identity {:?}", resp);
 
     let client = Client::from(bedrock_runtime_client);
 

@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 aws-config = "1.8.10"
 aws-sdk-bedrockruntime = "1.113.0"
+aws-sdk-sts = "1.92.0"
 axum = { version = "0.8.7", features = ["macros"] }
 rig-bedrock = "0.3.6"
 rig-core = "0.24.0"
