@@ -3,10 +3,7 @@ use axum::{
     extract::State,
     routing::{get, post},
 };
-use rig::{
-    client::{ProviderClient, completion::CompletionClientDyn},
-    completion::Prompt,
-};
+use rig::{client::completion::CompletionClientDyn, completion::Prompt};
 use rig_bedrock::{
     client::{Client, ClientBuilder},
     completion::AMAZON_NOVA_PRO,
@@ -40,7 +37,7 @@ pub struct AppState {
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    let client = Client::from_env();
+    let client = ClientBuilder::new().region("us-east-1").build().await;
 
     let state = AppState {
         rig_client: client.clone(),
@@ -51,7 +48,7 @@ async fn main() {
         .route("/invocations", post(invocations))
         .with_state(state);
 
-    let listener = TcpListener::bind("127.0.0.1:8080").await.unwrap();
+    let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
