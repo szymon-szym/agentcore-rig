@@ -16,6 +16,10 @@ WORKDIR /app
 
 COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/agent .
 
+ENV AWS_REGION=us-east-1 \
+    AWS_DEFAULT_REGION=us-east-1
+
+
 RUN useradd -m appuser
 USER appuser
 
