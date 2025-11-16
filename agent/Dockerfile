@@ -8,7 +8,7 @@ COPY . .
 
 RUN cargo build --release --target aarch64-unknown-linux-gnu
 
-FROM debian:bookworm-slim AS runtime
+FROM ubuntu:24.04-minimal AS runtime
 
 RUN apt-get update && apt-get install -y --no-install-recommends libssl3 && rm -rf /var/lib/apt/lists/*
 
