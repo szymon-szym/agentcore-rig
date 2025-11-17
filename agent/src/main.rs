@@ -1,3 +1,4 @@
+use aws_config::meta::credentials::CredentialsProviderChain;
 use axum::{
     Json, Router, debug_handler,
     extract::State,
@@ -39,6 +40,11 @@ pub struct AppState {
 #[tokio::main]
 async fn main() {
     tracing_subscriber::fmt::init();
+
+    let profile_endpoint = std::env::var("AWS_EC2_METADATA_SERVICE_ENDPOINT")
+        .unwrap_or_else(|_| "missing metadata".to_string());
+
+    println!("profile_endpoint: {}", profile_endpoint);
 
     let aws_config = aws_config::from_env().region("us-east-1").load().await;
 
