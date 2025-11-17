@@ -12,7 +12,7 @@ struct MmdsCredentials {
     access_key_id: String,
     #[serde(rename = "SecretAccessKey")]
     secret_access_key: String,
-    #[serde(rename = "SessionToken")]
+    #[serde(rename = "Token")]
     session_token: String,
     #[serde(rename = "Expiration")]
     expiration: String,
