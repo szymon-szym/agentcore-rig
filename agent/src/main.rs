@@ -4,17 +4,15 @@ use axum::{
     extract::State,
     routing::{get, post},
 };
-use rig::{
-    client::{ProviderClient, completion::CompletionClientDyn},
-    completion::Prompt,
-};
-use rig_bedrock::{
-    client::{Client, ClientBuilder},
-    completion::AMAZON_NOVA_PRO,
-};
+use rig::{client::completion::CompletionClientDyn, completion::Prompt};
+use rig_bedrock::{client::Client, completion::AMAZON_NOVA_PRO};
 
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
+
+use crate::credentials_provider::MmdsProvider;
+
+mod credentials_provider;
 
 #[derive(Serialize)]
 pub struct StatusResponse {
@@ -41,12 +39,13 @@ pub struct AppState {
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    let profile_endpoint = std::env::var("AWS_EC2_METADATA_SERVICE_ENDPOINT")
-        .unwrap_or_else(|_| "missing metadata".to_string());
+    let mmds_provider = MmdsProvider::new();
 
-    println!("profile_endpoint: {}", profile_endpoint);
-
-    let aws_config = aws_config::from_env().region("us-east-1").load().await;
+    let aws_config = aws_config::from_env()
+        .credentials_provider(mmds_provider)
+        .region("us-east-1")
+        .load()
+        .await;
 
     println!("config loaded: {:?}", aws_config);
 
