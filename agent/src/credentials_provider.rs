@@ -1,3 +1,5 @@
+use std::os::unix::raw::pthread_t;
+
 use aws_credential_types::{
     Credentials,
     provider::{ProvideCredentials, error::CredentialsError},
@@ -55,17 +57,23 @@ impl ProvideCredentials for MmdsProvider {
                 .await
                 .map_err(|e| CredentialsError::provider_error(Box::new(e)))?;
 
+            println!("role name {}", &role_name);
+
             let credentials_url = format!(
                 "{}/latest/meta-data/iam/security-credentials/{}",
                 self.endpoint, role_name
             );
 
-            let credentials = self
+            let credentials_raw = self
                 .client
                 .get(&credentials_url)
                 .send()
                 .await
-                .map_err(|e| CredentialsError::provider_error(Box::new(e)))?
+                .map_err(|e| CredentialsError::provider_error(Box::new(e)))?;
+
+            println!("cred response: {:?}", credentials_raw);
+
+            let credentials = credentials_raw
                 .json::<MmdsCredentials>()
                 .await
                 .map_err(|e| CredentialsError::provider_error(Box::new(e)))?;
