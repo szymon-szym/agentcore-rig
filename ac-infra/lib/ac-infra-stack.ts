@@ -42,12 +42,12 @@ export class AcInfraStack extends cdk.Stack {
     // grant permissions to push to ECR
     acRepository.grantPush(ghActionsUser);
 
-    new cdk.CfnOutput(this, "ECRRepository", {
+    new cdk.CfnOutput(this, "ECRRepositoryURI", {
       value: acRepository.registryUri,
     });
 
-    new cdk.CfnOutput(this, "GHRoleToAssume", {
-      value: ghActionRole.roleArn,
+    new cdk.CfnOutput(this, "ECRRepositoryName", {
+      value: acRepository.repositoryName,
     });
   }
 }

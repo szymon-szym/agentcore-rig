@@ -1,0 +1,6 @@
+{
+  "AcInfraStack": {
+    "ECRRepositoryName": "ac-repository",
+    "ECRRepositoryURI": "765444088049.dkr.ecr.us-east-1.amazonaws.com"
+  }
+}

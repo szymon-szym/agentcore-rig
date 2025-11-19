@@ -39,3 +39,36 @@ jobs:
         run: |
           npm i
           cdk deploy -O cdk-outputs.json --required-approval never
+
+      - name: Parse CDK outputs
+        id: cdk_outputs
+        working-directory: ac-infra
+        run: |
+          REPO_NAME=$(jq -r '.AcInfraStack.ECRRepositoryName' cdk-outputs.json)
+          REPO_URI=$(jq -r '.AcInfraStack.ECRRepositoryURI' cdk-outputs.json)
+
+          echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
+          echo "repo_uri=$REPO_URI" >> $GITHUB_OUTPUT
+
+      - name: Docker login to ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+            | docker login \
+              --username AWS \
+              --password-stdin ${{ steps.cdk_outputs.outputs.repo_uri }}
+
+      - name: Build ARM64 Docker image
+        run: |
+          docker build \
+            -t ${{ steps.cdk_outputs.outputs.repo_name }}:latest \
+            .
+
+      - name: Tag image
+        run: |
+          docker tag ${{ steps.cdk_outputs.outputs.repo_name }}:latest \
+            ${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
+
+      - name: Push to ECR
+        run: |
+          docker push \
+          ${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
