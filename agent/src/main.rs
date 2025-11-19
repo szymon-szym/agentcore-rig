@@ -14,7 +14,7 @@ use crate::credentials_provider::MmdsProvider;
 
 mod credentials_provider;
 
-const AGENTCORE_RUNNING_ENV: &str = "agentore";
+const AGENTCORE_RUNNING_ENV: &str = "agentcore";
 
 #[derive(Serialize)]
 pub struct StatusResponse {
