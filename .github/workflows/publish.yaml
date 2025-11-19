@@ -2,7 +2,7 @@ name: Build & Push agent to ECR
 
 on:
   push:
-    branches: ["main"]
+    # branches: ["main"]
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION }}
@@ -35,7 +35,7 @@ jobs:
               --username AWS \
               --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
 
-      - name: Build ARM64 Docker image (native)
+      - name: Build ARM64 Docker image
         run: |
           docker build \
             -t $ECR_REPO:latest \

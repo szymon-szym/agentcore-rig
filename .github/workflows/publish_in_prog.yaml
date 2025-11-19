@@ -1,0 +1,31 @@
+name: Build & Push agent to ECR
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ROLE: ${{ secrets.AWS_ROLE }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-agent:
+    runs-on: ubuntu-24.04-arm
+
+    defaults:
+      run:
+        working-directory: agent
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE }}
+          aws-region: ${{ env.AWS_REGION }}

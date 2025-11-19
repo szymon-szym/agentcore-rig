@@ -1,4 +1,3 @@
-use aws_config::meta::credentials::CredentialsProviderChain;
 use axum::{
     Json, Router, debug_handler,
     extract::State,
