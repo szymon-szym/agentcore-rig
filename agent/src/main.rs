@@ -14,6 +14,8 @@ use crate::credentials_provider::MmdsProvider;
 
 mod credentials_provider;
 
+const AGENTCORE_RUNNING_ENV: &str = "agentore";
+
 #[derive(Serialize)]
 pub struct StatusResponse {
     #[serde(rename = "status")]
@@ -39,13 +41,22 @@ pub struct AppState {
 async fn main() {
     tracing_subscriber::fmt::init();
 
-    let mmds_provider = MmdsProvider::new();
+    let running_env = std::env::var("RUNNING_ENV")
+        .ok()
+        .unwrap_or("local".to_string());
 
-    let aws_config = aws_config::from_env()
-        .credentials_provider(mmds_provider)
-        .region("us-east-1")
-        .load()
-        .await;
+    let aws_config = match running_env.as_str() {
+        AGENTCORE_RUNNING_ENV => {
+            let mmds_provider = MmdsProvider::new();
+
+            aws_config::from_env()
+                .credentials_provider(mmds_provider)
+                .region("us-east-1")
+                .load()
+                .await
+        }
+        _ => aws_config::from_env().region("us-east-1").load().await,
+    };
 
     let bedrock_runtime_client = aws_sdk_bedrockruntime::Client::new(&aws_config);
 
@@ -85,8 +96,6 @@ async fn invocations(
         .build();
 
     let response = agent.prompt(prompt).await.unwrap();
-
-    println!("profile after call: {:?}", state.rig_client);
 
     let response = InvocationsResponse { message: response };
     Json(response)

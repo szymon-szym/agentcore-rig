@@ -18,6 +18,7 @@ COPY --from=builder /app/target/aarch64-unknown-linux-gnu/release/agent .
 
 ENV AWS_REGION=us-east-1 \
     AWS_DEFAULT_REGION=us-east-1 \
+    RUNNING_ENV=agentcore \
     RUST_LOG=debug
 
 RUN useradd -m appuser
