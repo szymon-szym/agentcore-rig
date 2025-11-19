@@ -37,4 +37,5 @@ jobs:
       - name: Deploy CDK
         working-directory: ac-infra
         run: |
+          npm i
           cdk deploy -O cdk-outputs.json --required-approval never
