@@ -8,6 +8,7 @@ use rig_bedrock::{client::Client, completion::AMAZON_NOVA_PRO};
 
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
+use tracing::info;
 
 use crate::credentials_provider::MmdsProvider;
 
@@ -38,7 +39,7 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::fmt::init();
+    tracing_subscriber::fmt().json().init();
 
     let running_env = std::env::var("RUNNING_ENV")
         .ok()
@@ -46,6 +47,7 @@ async fn main() {
 
     let aws_config = match running_env.as_str() {
         AGENTCORE_RUNNING_ENV => {
+            info!("running in agentcore runtime");
             let mmds_provider = MmdsProvider::new();
 
             aws_config::from_env()
@@ -54,7 +56,11 @@ async fn main() {
                 .load()
                 .await
         }
-        _ => aws_config::from_env().region("us-east-1").load().await,
+        _ => {
+            info!("running locally");
+
+            aws_config::from_env().region("us-east-1").load().await
+        }
     };
 
     let bedrock_runtime_client = aws_sdk_bedrockruntime::Client::new(&aws_config);
