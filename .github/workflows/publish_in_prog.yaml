@@ -29,3 +29,12 @@ jobs:
         with:
           role-to-assume: ${{ env.AWS_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install CDK
+        run: |
+          npm install -g aws-cdk
+
+      - name: Deploy CDK
+        working-directory: ac-infra
+        run: |
+          cdk deploy -O cdk-outputs.json --required-approval never
