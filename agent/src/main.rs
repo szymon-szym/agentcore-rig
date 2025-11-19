@@ -47,16 +47,7 @@ async fn main() {
         .load()
         .await;
 
-    println!("config loaded: {:?}", aws_config);
-
     let bedrock_runtime_client = aws_sdk_bedrockruntime::Client::new(&aws_config);
-
-    let sts_client = aws_sdk_sts::Client::new(&aws_config);
-
-    match sts_client.get_caller_identity().send().await {
-        Ok(resp) => println!("identity: {:?}", resp),
-        Err(e) => eprintln!("sts get_caller_identity error: {:?}", e),
-    }
 
     let client = Client::from(bedrock_runtime_client);
 
@@ -92,8 +83,6 @@ async fn invocations(
         .agent(AMAZON_NOVA_PRO)
         .preamble("You are helpful assistant. Respond only with the answer. Be concise.")
         .build();
-
-    println!("profile: {:?}", state.rig_client);
 
     let response = agent.prompt(prompt).await.unwrap();
 

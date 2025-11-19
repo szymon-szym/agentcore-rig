@@ -57,8 +57,6 @@ impl ProvideCredentials for MmdsProvider {
                 .await
                 .map_err(|e| CredentialsError::provider_error(Box::new(e)))?;
 
-            println!("role name {}", &role_name);
-
             let credentials_url = format!(
                 "{}/latest/meta-data/iam/security-credentials/{}",
                 self.endpoint, role_name
@@ -71,14 +69,10 @@ impl ProvideCredentials for MmdsProvider {
                 .await
                 .map_err(|e| CredentialsError::provider_error(Box::new(e)))?;
 
-            println!("cred response: {:?}", &credentials_raw);
-
             let credentials_json = credentials_raw
                 .json::<serde_json::Value>()
                 .await
                 .map_err(|e| CredentialsError::provider_error(Box::new(e)))?;
-
-            println!("response body: {}", &credentials_json);
 
             let credentials: MmdsCredentials = serde_json::from_value(credentials_json)
                 .map_err(|e| CredentialsError::provider_error(Box::new(e)))?;
