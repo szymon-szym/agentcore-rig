@@ -1,4 +1,4 @@
-name: Build & Push agent to ECR
+name: Deploy Agent
 
 on:
   push:
@@ -46,9 +46,13 @@ jobs:
         run: |
           REPO_NAME=$(jq -r '.AcInfraStack.ECRRepositoryName' cdk-outputs.json)
           REPO_URI=$(jq -r '.AcInfraStack.ECRRepositoryURI' cdk-outputs.json)
+          AGENT_RUNTIME_ROLE=$(jq -r '.AcInfraStack.AgentRuntimeRoleArn' cdk-outputs.json)
+          AGENT_RUNTIME_ID=$(jq -r '.AcInfraStack.RustAgentId' cdk-outputs.json)
 
           echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
           echo "repo_uri=$REPO_URI" >> $GITHUB_OUTPUT
+          echo "agent_runtime_role=$AGENT_RUNTIME_ROLE" >> $GITHUB_OUTPUT
+          echo "agent_runtime_id=$AGENT_RUNTIME_ID" >> $GITHUB_OUTPUT
 
       - name: Docker login to ECR
         run: |
@@ -72,3 +76,16 @@ jobs:
         run: |
           docker push \
           ${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
+
+      - name: Update Agent version
+        run: |
+          aws bedrock-agentcore-control update-agent-runtime \
+          --agent-runtime-id ${{ steps.cdk_outputs.outputs.agent_runtime_id }} \
+          --agent-runtime-artifact "{
+                  \"containerConfiguration\": {
+                    \"containerUri\": \"${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest\"
+                  }
+                }" \
+          --role-arn ${{ steps.cdk_outputs.outputs.agent_runtime_role }} \
+          --network-configuration '{ "networkMode": "PUBLIC" }' \
+          --region ${{ env.AWS_REGION }}

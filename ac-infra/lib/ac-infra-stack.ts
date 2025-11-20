@@ -14,29 +14,6 @@ export class AcInfraStack extends cdk.Stack {
       repositoryName: "ac-repository",
     });
 
-    const GH_ORG = "szymon-szym";
-    const GH_REPO = "agentcore-rig";
-    const GH_BRANCH = "*";
-
-    const ghActionRole = new iam.Role(this, "GitHubActionRole", {
-      roleName: "gh-action-role",
-      assumedBy: new iam.FederatedPrincipal(
-        `arn:aws:iam::${this.account}:oidc-provider/token.actions.githubusercontent.com`,
-        {
-          StringEquals: {
-            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-          },
-          StringLike: {
-            "token.actions.githubusercontent.com:sub": `repo:${GH_ORG}/${GH_REPO}:ref:refs/heads/${GH_BRANCH}`,
-          },
-        },
-        "sts:AssumeRoleWithWebIdentity",
-      ),
-      managedPolicies: [
-        iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess"), // or least privilege
-      ],
-    });
-
     const runtimeRole = new iam.Role(this, "AgentCoreRustAgent", {
       assumedBy: new iam.ServicePrincipal("bedrock-agentcore.amazonaws.com", {
         conditions: {
