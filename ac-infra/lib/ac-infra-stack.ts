@@ -4,14 +4,14 @@ import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { aws_bedrockagentcore as agentcore } from "aws-cdk-lib";
 
-const AGENT_NAME = "rig_agent";
+const AGENT_NAME = "rust_agent";
 
 export class AcInfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const acRepository = new ecr.Repository(this, "ACRepository", {
-      repositoryName: "ac-repository",
+    const acRepository = new ecr.Repository(this, "RustAgentRepository", {
+      repositoryName: "agentcore-rust-agent",
     });
 
     const runtimeRole = new iam.Role(this, "AgentCoreRustAgent", {
