@@ -141,6 +141,8 @@ export class AcRuntimeStack extends cdk.Stack {
       roleArn: runtimeRole.roleArn,
     });
 
+    agentRuntime.node.addDependency(runtimeRole);
+
     new cdk.CfnOutput(this, "RustAgentId", {
       value: agentRuntime.attrAgentRuntimeId,
     });
