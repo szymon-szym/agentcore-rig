@@ -1,5 +1,3 @@
-use std::os::unix::raw::pthread_t;
-
 use aws_credential_types::{
     Credentials,
     provider::{ProvideCredentials, error::CredentialsError},
