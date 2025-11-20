@@ -41,7 +41,7 @@ jobs:
           cdk deploy -O cdk-ecr-outputs.json --require-approval never
 
       - name: Parse ECR CDK outputs
-        id: cdk_outputs
+        id: cdk_ecr_outputs
         working-directory: aws/ac-infra
         run: |
           REPO_NAME=$(jq -r '.RustAgentAgentcoreECRStack.ECRRepositoryName' cdk-ecr-outputs.json)
@@ -82,7 +82,7 @@ jobs:
           --context REPO_NAME=${{ steps.cdk_outputs.outputs.repo_name }}
 
       - name: Parse Runtime CDK outputs
-        id: cdk_outputs
+        id: cdk_runtime_outputs
         working-directory: aws/ac-infra
         run: |
           AGENT_RUNTIME_ROLE=$(jq -r '.AcInfraStack.AgentRuntimeRoleArn' cdk-runtime-outputs.json)
