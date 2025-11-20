@@ -1,18 +1,16 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
-import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { aws_bedrockagentcore as agentcore } from "aws-cdk-lib";
 
-const AGENT_NAME = "rust_agent";
-
-export class AcInfraStack extends cdk.Stack {
+export class AcRuntimeStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const acRepository = new ecr.Repository(this, "RustAgentRepository", {
-      repositoryName: "agentcore-rust-agent",
-    });
+    const AGENT_NAME = "rust_agent";
+
+    const repositoryName = this.node.tryGetContext("REPO_NAME");
+    const repositoryURI = this.node.tryGetContext("REPO_URI");
 
     const runtimeRole = new iam.Role(this, "AgentCoreRustAgent", {
       assumedBy: new iam.ServicePrincipal("bedrock-agentcore.amazonaws.com", {
@@ -33,7 +31,7 @@ export class AcInfraStack extends cdk.Stack {
         effect: iam.Effect.ALLOW,
         actions: ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
         resources: [
-          `arn:aws:ecr:${this.region}:${this.account}:repository/${acRepository.repositoryName}`,
+          `arn:aws:ecr:${this.region}:${this.account}:repository/${repositoryName}`,
         ],
       }),
     );
@@ -133,7 +131,7 @@ export class AcInfraStack extends cdk.Stack {
     const agentRuntime = new agentcore.CfnRuntime(this, "RustAgent", {
       agentRuntimeArtifact: {
         containerConfiguration: {
-          containerUri: `${acRepository.registryUri}/${acRepository.repositoryName}:latest`,
+          containerUri: `${repositoryURI}/${repositoryName}:latest`,
         },
       },
       agentRuntimeName: AGENT_NAME,
@@ -141,14 +139,6 @@ export class AcInfraStack extends cdk.Stack {
         networkMode: "PUBLIC",
       },
       roleArn: runtimeRole.roleArn,
-    });
-
-    new cdk.CfnOutput(this, "ECRRepositoryURI", {
-      value: acRepository.registryUri,
-    });
-
-    new cdk.CfnOutput(this, "ECRRepositoryName", {
-      value: acRepository.repositoryName,
     });
 
     new cdk.CfnOutput(this, "RustAgentId", {

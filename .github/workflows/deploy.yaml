@@ -34,25 +34,21 @@ jobs:
         run: |
           npm install -g aws-cdk
 
-      - name: Deploy CDK
-        working-directory: ac-infra
+      - name: Deploy ECR
+        working-directory: aws/ac-infra
         run: |
           npm i
-          cdk deploy -O cdk-outputs.json --require-approval never
+          cdk deploy -O cdk-ecr-outputs.json --require-approval never
 
-      - name: Parse CDK outputs
+      - name: Parse ECR CDK outputs
         id: cdk_outputs
-        working-directory: ac-infra
+        working-directory: aws/ac-infra
         run: |
-          REPO_NAME=$(jq -r '.AcInfraStack.ECRRepositoryName' cdk-outputs.json)
-          REPO_URI=$(jq -r '.AcInfraStack.ECRRepositoryURI' cdk-outputs.json)
-          AGENT_RUNTIME_ROLE=$(jq -r '.AcInfraStack.AgentRuntimeRoleArn' cdk-outputs.json)
-          AGENT_RUNTIME_ID=$(jq -r '.AcInfraStack.RustAgentId' cdk-outputs.json)
+          REPO_NAME=$(jq -r '.RustAgentAgentcoreECRStack.ECRRepositoryName' cdk-ecr-outputs.json)
+          REPO_URI=$(jq -r '.RustAgentAgentcoreECRStack.ECRRepositoryURI' cdk-ecr-outputs.json)
 
           echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
           echo "repo_uri=$REPO_URI" >> $GITHUB_OUTPUT
-          echo "agent_runtime_role=$AGENT_RUNTIME_ROLE" >> $GITHUB_OUTPUT
-          echo "agent_runtime_id=$AGENT_RUNTIME_ID" >> $GITHUB_OUTPUT
 
       - name: Docker login to ECR
         run: |
@@ -76,6 +72,24 @@ jobs:
         run: |
           docker push \
           ${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
+
+      - name: Deploy AgentCore Runtime
+        working-directory: aws/ac-runtime
+        run: |
+          npm i
+          cdk deploy -O cdk-runtime-outputs.json --require-approval never \
+          --context REPO_URI=${{ steps.cdk_outputs.outputs.repo_uri }} \
+          --context REPO_NAME=${{ steps.cdk_outputs.outputs.repo_name }}
+
+      - name: Parse Runtime CDK outputs
+        id: cdk_outputs
+        working-directory: aws/ac-infra
+        run: |
+          AGENT_RUNTIME_ROLE=$(jq -r '.AcInfraStack.AgentRuntimeRoleArn' cdk-runtime-outputs.json)
+          AGENT_RUNTIME_ID=$(jq -r '.AcInfraStack.RustAgentId' cdk-runtime-outputs.json)
+
+          echo "agent_runtime_role=$AGENT_RUNTIME_ROLE" >> $GITHUB_OUTPUT
+          echo "agent_runtime_id=$AGENT_RUNTIME_ID" >> $GITHUB_OUTPUT
 
       - name: Update Agent version
         run: |
