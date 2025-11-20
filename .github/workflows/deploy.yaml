@@ -66,7 +66,7 @@ jobs:
       - name: Tag image
         run: |
           docker tag ${{ steps.cdk_ecr_outputs.outputs.repo_name }}:latest \
-            ${{ steps.cdk_ecr_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
+            ${{ steps.cdk_ecr_outputs.outputs.repo_uri }}/${{ steps.cdk_ecr_outputs.outputs.repo_name }}:latest
 
       - name: Push to ECR
         run: |
@@ -78,8 +78,8 @@ jobs:
         run: |
           npm i
           cdk deploy -O cdk-runtime-outputs.json --require-approval never \
-          --context REPO_URI=${{ steps.cdk_outputs.outputs.repo_uri }} \
-          --context REPO_NAME=${{ steps.cdk_outputs.outputs.repo_name }}
+          --context REPO_URI=${{ steps.cdk_ecr_outputs.outputs.repo_uri }} \
+          --context REPO_NAME=${{ steps.cdk_ecr_outputs.outputs.repo_name }}
 
       - name: Parse Runtime CDK outputs
         id: cdk_runtime_outputs
