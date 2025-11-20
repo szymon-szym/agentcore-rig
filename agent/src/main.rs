@@ -3,7 +3,11 @@ use axum::{
     extract::State,
     routing::{get, post},
 };
-use rig::{client::completion::CompletionClientDyn, completion::Prompt};
+use rig::{
+    agent::Agent,
+    client::completion::{CompletionClientDyn, CompletionModelHandle},
+    completion::Prompt,
+};
 use rig_bedrock::{client::Client, completion::AMAZON_NOVA_PRO};
 
 use serde::{Deserialize, Serialize};
@@ -32,9 +36,9 @@ pub struct InvocationsResponse {
     message: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AppState {
-    rig_client: Client,
+    agent: Agent<CompletionModelHandle<'static>>,
 }
 
 #[tokio::main]
@@ -67,9 +71,12 @@ async fn main() {
 
     let client = Client::from(bedrock_runtime_client);
 
-    let state = AppState {
-        rig_client: client.clone(),
-    };
+    let agent = client
+        .agent(AMAZON_NOVA_PRO)
+        .preamble("You are helpful assistant. Respond only with the answer. Be concise.")
+        .build();
+
+    let state = AppState { agent: agent };
 
     let app = Router::new()
         .route("/ping", get(ping))
@@ -94,11 +101,7 @@ async fn invocations(
 ) -> Json<InvocationsResponse> {
     let prompt = payload.prompt;
 
-    let agent = state
-        .rig_client
-        .agent(AMAZON_NOVA_PRO)
-        .preamble("You are helpful assistant. Respond only with the answer. Be concise.")
-        .build();
+    let agent = state.agent;
 
     let response = agent.prompt(prompt).await.unwrap();
 
