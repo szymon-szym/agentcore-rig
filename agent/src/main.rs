@@ -101,9 +101,7 @@ async fn invocations(
 ) -> Json<InvocationsResponse> {
     let prompt = payload.prompt;
 
-    let agent = state.agent;
-
-    let response = agent.prompt(prompt).await.unwrap();
+    let response = state.agent.prompt(prompt).await.unwrap();
 
     let response = InvocationsResponse { message: response };
     Json(response)
