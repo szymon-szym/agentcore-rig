@@ -55,23 +55,23 @@ jobs:
           aws ecr get-login-password --region $AWS_REGION \
             | docker login \
               --username AWS \
-              --password-stdin ${{ steps.cdk_outputs.outputs.repo_uri }}
+              --password-stdin ${{ steps.cdk_ecr_outputs.outputs.repo_uri }}
 
       - name: Build ARM64 Docker image
         run: |
           docker build \
-            -t ${{ steps.cdk_outputs.outputs.repo_name }}:latest \
+            -t ${{ steps.cdk_ecr_outputs.outputs.repo_name }}:latest \
             .
 
       - name: Tag image
         run: |
-          docker tag ${{ steps.cdk_outputs.outputs.repo_name }}:latest \
-            ${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
+          docker tag ${{ steps.cdk_ecr_outputs.outputs.repo_name }}:latest \
+            ${{ steps.cdk_ecr_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
 
       - name: Push to ECR
         run: |
           docker push \
-          ${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest
+          ${{ steps.cdk_ecr_outputs.outputs.repo_uri }}/${{ steps.cdk_ecr_outputs.outputs.repo_name }}:latest
 
       - name: Deploy AgentCore Runtime
         working-directory: aws/ac-runtime
@@ -94,12 +94,12 @@ jobs:
       - name: Update Agent version
         run: |
           aws bedrock-agentcore-control update-agent-runtime \
-          --agent-runtime-id ${{ steps.cdk_outputs.outputs.agent_runtime_id }} \
+          --agent-runtime-id ${{ steps.cdk_runtime_outputs.outputs.agent_runtime_id }} \
           --agent-runtime-artifact "{
                   \"containerConfiguration\": {
-                    \"containerUri\": \"${{ steps.cdk_outputs.outputs.repo_uri }}/${{ steps.cdk_outputs.outputs.repo_name }}:latest\"
+                    \"containerUri\": \"${{ steps.cdk_ecr_outputs.outputs.repo_uri }}/${{ steps.cdk_ecr_outputs.outputs.repo_name }}:latest\"
                   }
                 }" \
-          --role-arn ${{ steps.cdk_outputs.outputs.agent_runtime_role }} \
+          --role-arn ${{ steps.cdk_runtime_outputs.outputs.agent_runtime_role }} \
           --network-configuration '{ "networkMode": "PUBLIC" }' \
           --region ${{ env.AWS_REGION }}
