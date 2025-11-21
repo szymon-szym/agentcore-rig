@@ -85,8 +85,8 @@ jobs:
         id: cdk_runtime_outputs
         working-directory: aws/ac-runtime
         run: |
-          AGENT_RUNTIME_ROLE=$(jq -r '.AcInfraStack.AgentRuntimeRoleArn' cdk-runtime-outputs.json)
-          AGENT_RUNTIME_ID=$(jq -r '.AcInfraStack.RustAgentId' cdk-runtime-outputs.json)
+          AGENT_RUNTIME_ROLE=$(jq -r '.AcRuntimeStack.AgentRuntimeRoleArn' cdk-runtime-outputs.json)
+          AGENT_RUNTIME_ID=$(jq -r '.AcRuntimeStack.RustAgentId' cdk-runtime-outputs.json)
 
           echo "agent_runtime_role=$AGENT_RUNTIME_ROLE" >> $GITHUB_OUTPUT
           echo "agent_runtime_id=$AGENT_RUNTIME_ID" >> $GITHUB_OUTPUT
