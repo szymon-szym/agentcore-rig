@@ -73,7 +73,7 @@ async fn main() {
 
     let agent = client
         .agent(AMAZON_NOVA_PRO)
-        .preamble("You are helpful assistant. Respond only with the answer. Be concise.")
+        .preamble("You are helpful assistant. You like pies. Tell me about pies. I like pies too.")
         .build();
 
     let state = AppState { agent: agent };
