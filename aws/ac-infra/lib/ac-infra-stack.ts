@@ -7,7 +7,7 @@ export class AcInfraStack extends cdk.Stack {
     super(scope, id, props);
 
     const acRepository = new ecr.Repository(this, "RustAgentRepository", {
-      repositoryName: "agentcore-rust-agent",
+      repositoryName: "agentcore-rust-agent-repo",
     });
 
     new cdk.CfnOutput(this, "ECRRepositoryURI", {
