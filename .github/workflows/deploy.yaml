@@ -46,9 +46,13 @@ jobs:
         run: |
           REPO_NAME=$(jq -r '.RustAgentAgentcoreECRStack.ECRRepositoryName' cdk-ecr-outputs.json)
           REPO_URI=$(jq -r '.RustAgentAgentcoreECRStack.ECRRepositoryURI' cdk-ecr-outputs.json)
+          COGNITO_DISCOVERY_URL=$(jq -r '.RustAgentAgentcoreECRStack.CognitoDiscoveryUrl' cdk-ecr-outputs.json)
+          COGNITO_CLIENT_ID=$(jq -r '.RustAgentAgentcoreECRStack.CognitoClientId' cdk-ecr-outputs.json)
 
           echo "repo_name=$REPO_NAME" >> $GITHUB_OUTPUT
           echo "repo_uri=$REPO_URI" >> $GITHUB_OUTPUT
+          echo "cognito_discovery_url=$COGNITO_DISCOVERY_URL" >> $GITHUB_OUTPUT
+          echo "cognito_client_id=$COGNITO_CLIENT_ID" >> $GITHUB_OUTPUT
 
       - name: Docker login to ECR
         run: |
@@ -79,7 +83,9 @@ jobs:
           npm i
           cdk deploy -O cdk-runtime-outputs.json --require-approval never \
           --context REPO_URI=${{ steps.cdk_ecr_outputs.outputs.repo_uri }} \
-          --context REPO_NAME=${{ steps.cdk_ecr_outputs.outputs.repo_name }}
+          --context REPO_NAME=${{ steps.cdk_ecr_outputs.outputs.repo_name }} \
+          --context COGNITO_DISCOVERY_URL=${{ steps.cdk_ecr_outputs.outputs.cognito_discovery_url }} \
+          --context COGNITO_CLIENT_ID=${{ steps.cdk_ecr_outputs.outputs.cognito_client_id }}
 
       - name: Parse Runtime CDK outputs
         id: cdk_runtime_outputs

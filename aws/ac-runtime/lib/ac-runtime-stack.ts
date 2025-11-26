@@ -11,6 +11,10 @@ export class AcRuntimeStack extends cdk.Stack {
 
     const repositoryName = this.node.tryGetContext("REPO_NAME");
     const repositoryURI = this.node.tryGetContext("REPO_URI");
+    const cognitoClientId = this.node.tryGetContext("COGNITO_CLIENT_ID");
+    const cognitoDiscoveryUrl = this.node.tryGetContext(
+      "COGNITO_DISCOVERY_URL",
+    );
 
     const runtimeRole = new iam.Role(this, "AgentCoreRustAgent", {
       assumedBy: new iam.ServicePrincipal("bedrock-agentcore.amazonaws.com", {
@@ -132,6 +136,12 @@ export class AcRuntimeStack extends cdk.Stack {
       agentRuntimeArtifact: {
         containerConfiguration: {
           containerUri: `${repositoryURI}/${repositoryName}:latest`,
+        },
+      },
+      authorizerConfiguration: {
+        customJwtAuthorizer: {
+          discoveryUrl: cognitoDiscoveryUrl,
+          allowedClients: [cognitoClientId],
         },
       },
       agentRuntimeName: AGENT_NAME,
