@@ -108,7 +108,7 @@ jobs:
                 }" \
           --role-arn ${{ steps.cdk_runtime_outputs.outputs.agent_runtime_role }} \
           --authorizer-configuration "{
-          \"customJwtAuthorizer\": {
+          \"customJWTAuthorizer\": {
             \"discoveryUrl\": \"${{ steps.cdk_ecr_outputs.outputs.cognito_discovery_url }}\",
             \"allowedClients\": [ \"${{ steps.cdk_ecr_outputs.outputs.cognito_client_id }}\" ]
           }
