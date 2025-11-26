@@ -8,7 +8,10 @@ use rig::{
     client::completion::{CompletionClientDyn, CompletionModelHandle},
     completion::Prompt,
 };
-use rig_bedrock::{client::Client, completion::AMAZON_NOVA_PRO};
+use rig_bedrock::{
+    client::Client,
+    completion::{AMAZON_NOVA_LITE, AMAZON_NOVA_PRO},
+};
 
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
@@ -72,8 +75,8 @@ async fn main() {
     let client = Client::from(bedrock_runtime_client);
 
     let agent = client
-        .agent(AMAZON_NOVA_PRO)
-        .preamble("You are helpful assistant. You like pies. Tell me about pies. I like pies too.")
+        .agent(AMAZON_NOVA_LITE)
+        .preamble("You are helpful assistant. Be concise.")
         .build();
 
     let state = AppState { agent: agent };

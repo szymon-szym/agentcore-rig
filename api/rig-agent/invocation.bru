@@ -1,0 +1,25 @@
+meta {
+  name: invocation
+  type: http
+  seq: 2
+}
+
+post {
+  url: https://bedrock-agentcore.us-east-1.amazonaws.com/runtimes/arn%3Aaws%3Abedrock-agentcore%3Aus-east-1%3A765444088049%3Aruntime%2Frust_agent-SuEXX0AYgJ/invocations?qualifier=DEFAULT
+  body: json
+  auth: inherit
+}
+
+params:query {
+  qualifier: DEFAULT
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "prompt": "hello"
+  }
+}
